@@ -58,7 +58,9 @@
 
                 <div class="flex flex-col gap-3 flex-1 justify-center">
                     <h1 class="text-2xl font-bold" style="color: var(--text-primary);">
-                        <span class="block text-sm font-medium mb-1" style="color: var(--text-tertiary);" x-text="currentDate"></span>
+                        <span class="block text-sm font-medium mb-1" style="color: var(--text-tertiary);">
+                            <span x-text="currentDate"></span> · <span x-text="currentTime" class="font-mono opacity-80"></span>
+                        </span>
                         <span x-text="greetingEmoji + ' ' + greetingShort"></span>
                     </h1>
                     <p class="text-xs" style="color: var(--text-tertiary);">

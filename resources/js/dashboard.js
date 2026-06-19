@@ -8,9 +8,44 @@ export default function dashboard() {
             localStorage.setItem('darkMode', this.darkMode);
         },
 
+        currentTime: '',
+
+        updateTime() {
+            try {
+                this.currentTime = new Date().toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                    timeZone: 'Asia/Jakarta'
+                });
+            } catch (e) {
+                this.currentTime = new Date().toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+            }
+        },
+
+        // ── Timezone / Greeting Helper ──
+        getCurrentHour() {
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    hourCycle: 'h23',
+                    timeZone: 'Asia/Jakarta'
+                });
+                return parseInt(formatter.format(new Date()), 10);
+            } catch (e) {
+                return new Date().getHours();
+            }
+        },
+
         // ── Greeting ──
         get greeting() {
-            const h = new Date().getHours();
+            const h = this.getCurrentHour();
             if (h < 12) return 'Good Morning ☀️';
             if (h < 17) return 'Good Afternoon 🌤️';
             if (h < 20) return 'Good Evening 🌅';
@@ -18,7 +53,7 @@ export default function dashboard() {
         },
 
         get greetingShort() {
-            const h = new Date().getHours();
+            const h = this.getCurrentHour();
             if (h < 12) return 'Good Morning';
             if (h < 17) return 'Good Afternoon';
             if (h < 20) return 'Good Evening';
@@ -26,7 +61,7 @@ export default function dashboard() {
         },
 
         get greetingEmoji() {
-            const h = new Date().getHours();
+            const h = this.getCurrentHour();
             if (h < 12) return '☀️';
             if (h < 17) return '🌤️';
             if (h < 20) return '🌅';
@@ -34,7 +69,17 @@ export default function dashboard() {
         },
 
         get currentDate() {
-            return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            try {
+                return new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    timeZone: 'Asia/Jakarta'
+                });
+            } catch (e) {
+                return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            }
         },
 
         // ── Timer ──
@@ -419,10 +464,32 @@ export default function dashboard() {
         updateNextPrayer() {
             if (!this.prayer || !this.prayer.times || this.prayer.times.length === 0) return;
 
-            const now = new Date();
-            const currentHours = now.getHours();
-            const currentMinutes = now.getMinutes();
+            // Get current hours and minutes in Asia/Jakarta timezone (matching backend prayer times)
+            let currentHours, currentMinutes;
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hourCycle: 'h23',
+                    timeZone: 'Asia/Jakarta'
+                });
+                const parts = formatter.formatToParts(new Date());
+                const hPart = parts.find(p => p.type === 'hour');
+                const mPart = parts.find(p => p.type === 'minute');
+                if (hPart && mPart) {
+                    currentHours = parseInt(hPart.value, 10);
+                    currentMinutes = parseInt(mPart.value, 10);
+                } else {
+                    throw new Error("Missing format parts");
+                }
+            } catch (e) {
+                const now = new Date();
+                currentHours = now.getHours();
+                currentMinutes = now.getMinutes();
+            }
+
             const currentTimeVal = currentHours * 60 + currentMinutes;
+            const currentHHMM = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
 
             let next = null;
 
@@ -457,6 +524,61 @@ export default function dashboard() {
             this.prayer.times.forEach(t => {
                 t.isNext = (t.name === next.name) && !isTomorrow;
             });
+
+            // Check if any prayer time matches the current time
+            this.prayer.times.forEach(p => {
+                if (p.time === currentHHMM) {
+                    const todayStr = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta' }).format(new Date());
+                    const notifyKey = `${p.name}-${todayStr}`;
+                    if (localStorage.getItem('lastNotifiedPrayer') !== notifyKey) {
+                        localStorage.setItem('lastNotifiedPrayer', notifyKey);
+                        this.notifyPrayer(p.name);
+                    }
+                }
+            });
+        },
+
+        playPrayerChime() {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                const ctx = new Ctx();
+                const tone = (freq, start, len, gain = 0.18) => {
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.connect(g);
+                    g.connect(ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = 'sine';
+                    g.gain.setValueAtTime(0, start);
+                    g.gain.linearRampToValueAtTime(gain, start + 0.08);
+                    g.gain.exponentialRampToValueAtTime(0.0001, start + len);
+                    osc.start(start);
+                    osc.stop(start + len);
+                };
+                const t = ctx.currentTime;
+                // A beautiful, peaceful arpeggio reminder (C-E-G-C)
+                tone(523.25, t, 1.0, 0.2);       // C5
+                tone(659.25, t + 0.25, 1.0, 0.18); // E5
+                tone(783.99, t + 0.5, 1.2, 0.16);  // G5
+                tone(1046.50, t + 0.75, 1.5, 0.14); // C6
+            } catch {}
+        },
+
+        notifyPrayer(name) {
+            this.playPrayerChime();
+
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    try {
+                        new Notification('Waktu Sholat 🕌', {
+                            body: `Sudah masuk waktu sholat ${name} untuk wilayah Anda.`,
+                            tag: 'prayer-reminder',
+                        });
+                    } catch {}
+                } else if (Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            }
         },
 
         // ── Init ──
@@ -474,6 +596,12 @@ export default function dashboard() {
             this.fetchQuote();
             this.loadGamification();
             this.initLocation();
+
+            // Update real-time clock every second
+            this.updateTime();
+            setInterval(() => {
+                this.updateTime();
+            }, 1000);
 
             // Update prayer highlights every 30 seconds
             setInterval(() => {
