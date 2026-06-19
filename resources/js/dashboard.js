@@ -607,6 +607,11 @@ export default function dashboard() {
             setInterval(() => {
                 this.updateNextPrayer();
             }, 30000);
+
+            // Update weather every 5 minutes
+            setInterval(() => {
+                this.fetchWeather();
+            }, 300000);
         },
     };
 }

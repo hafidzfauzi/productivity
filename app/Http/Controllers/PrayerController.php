@@ -13,9 +13,9 @@ class PrayerController extends Controller
         $latitude = request()->query('latitude');
         $longitude = request()->query('longitude');
 
-        // Default coordinates: Cilacap Utara (-7.7011, 109.0233)
-        $lat = $latitude ?? -7.7011;
-        $lon = $longitude ?? 109.0233;
+        // Default coordinates: Mertasinga (-7.68, 109.06)
+        $lat = $latitude ?? -7.68;
+        $lon = $longitude ?? 109.06;
 
         $today = Carbon::today('Asia/Jakarta')->format('d-m-Y');
         
@@ -50,7 +50,7 @@ class PrayerController extends Controller
         ];
 
         if (!$timings) {
-            // Cilacap Utara fallback timings
+            // Mertasinga fallback timings
             $timings = [
                 'Fajr' => '04:37',
                 'Dhuhr' => '11:54',

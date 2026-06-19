@@ -12,13 +12,13 @@ class WeatherController extends Controller
         $latitude = request()->query('latitude');
         $longitude = request()->query('longitude');
 
-        // Default to Cilacap Utara coordinates if not provided to sync with prayer times
-        $lat = $latitude ?? -7.7011;
-        $lon = $longitude ?? 109.0233;
+        // Default to Mertasinga coordinates if not provided to sync with prayer times
+        $lat = $latitude ?? -7.68;
+        $lon = $longitude ?? 109.06;
 
         $cacheKey = 'weather_data_' . round($lat, 2) . '_' . round($lon, 2);
 
-        $data = Cache::remember($cacheKey, 1800, function () use ($lat, $lon, $latitude, $longitude) {
+        $data = Cache::remember($cacheKey, 300, function () use ($lat, $lon, $latitude, $longitude) {
             $apiKey = config('services.openweathermap.key');
 
             if (!$apiKey) {
@@ -56,7 +56,7 @@ class WeatherController extends Controller
 
     private function fallbackWeather(float $lat, float $lon, bool $hasGps = false): array
     {
-        $city = 'Cilacap Utara';
+        $city = 'Mertasinga';
 
         if ($hasGps) {
             try {
@@ -90,6 +90,30 @@ class WeatherController extends Controller
             }
         }
 
+        try {
+            // Fetch real-time weather from Open-Meteo (completely free, no API key required)
+            $weatherResponse = Http::timeout(5)->get('https://api.open-meteo.com/v1/forecast', [
+                'latitude' => $lat,
+                'longitude' => $lon,
+                'current' => 'temperature_2m,relative_humidity_2m,weather_code',
+            ]);
+
+            if ($weatherResponse->successful()) {
+                $current = $weatherResponse->json()['current'];
+                $meteoData = $this->mapMeteoWeather((int)$current['weather_code']);
+
+                return [
+                    'temp' => round($current['temperature_2m']),
+                    'condition' => $meteoData['condition'],
+                    'icon' => $meteoData['icon'],
+                    'city' => $city,
+                    'humidity' => $current['relative_humidity_2m'],
+                ];
+            }
+        } catch (\Exception $e) {
+            // Fallback to static mock data if API call fails
+        }
+
         return [
             'temp' => 29,
             'condition' => 'Partly cloudy',
@@ -97,6 +121,22 @@ class WeatherController extends Controller
             'city' => $city,
             'humidity' => 75,
         ];
+    }
+
+    private function mapMeteoWeather(int $code): array
+    {
+        return match ($code) {
+            0 => ['condition' => 'Clear sky', 'icon' => '☀️'],
+            1, 2 => ['condition' => 'Partly cloudy', 'icon' => '⛅'],
+            3 => ['condition' => 'Overcast', 'icon' => '☁️'],
+            45, 48 => ['condition' => 'Foggy', 'icon' => '🌫️'],
+            51, 53, 55 => ['condition' => 'Drizzle', 'icon' => '🌧️'],
+            61, 63, 65 => ['condition' => 'Rainy', 'icon' => '🌧️'],
+            71, 73, 75 => ['condition' => 'Snowy', 'icon' => '❄️'],
+            80, 81, 82 => ['condition' => 'Rain showers', 'icon' => '🌦️'],
+            95, 96, 99 => ['condition' => 'Thunderstorm', 'icon' => '⛈️'],
+            default => ['condition' => 'Partly cloudy', 'icon' => '🌤️'],
+        };
     }
 
     private function mapIcon(string $iconCode): string
