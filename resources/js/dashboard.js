@@ -280,32 +280,6 @@ export default function dashboard() {
             } catch {}
         },
 
-        // ── Music ──
-        playlists: [
-            { name: 'Cloudy Day', artist: 'Lofi Girl', id: '0vvXsWCC9xrXsKd4FyS8kM' },
-            { name: 'Deep Focus', artist: 'Spotify', id: '37i9dQZF1DWZeKCadgRdKQ' },
-            { name: 'Peaceful Piano', artist: 'Spotify', id: '37i9dQZF1DX4sWSpwq3LiO' },
-            { name: 'Jazz Vibes', artist: 'Spotify', id: '37i9dQZF1DX0SM0LYsmbMT' },
-        ],
-        currentPlaylist: null,
-        showPlaylistPicker: false,
-        customSpotifyUrl: '',
-        spotifyEmbedType: 'playlist',
-
-        selectPlaylist(pl) {
-            this.spotifyEmbedType = 'playlist';
-            this.currentPlaylist = { ...pl };
-            this.showPlaylistPicker = false;
-        },
-
-        loadCustomPlaylist() {
-            const match = this.customSpotifyUrl.match(/spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
-            if (!match) return;
-            this.spotifyEmbedType = match[1];
-            this.currentPlaylist = { name: 'Custom', artist: 'You', id: match[2] };
-            this.customSpotifyUrl = '';
-            this.showPlaylistPicker = false;
-        },
 
         // ── Weather & Location ──
         latitude: null,
@@ -587,9 +561,6 @@ export default function dashboard() {
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission();
             }
-
-            // Load default playlist
-            this.currentPlaylist = this.playlists[0];
 
             // Load data
             this.loadTasks();

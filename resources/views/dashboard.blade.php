@@ -123,63 +123,26 @@
         </div>
 
         {{-- ── ROW 1, COL 3: Music Player ── --}}
-        <div class="card animate-fade-in-up" id="widget-music">
-            <div class="card-inner">
+        <div class="card animate-fade-in-up" id="widget-music" style="background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 55%, rgba(10, 10, 12, 0.95) 100%), url('/images/lofi-bg.png'); background-size: cover; background-position: center; min-height: 260px;">
+            <div class="card-inner flex flex-col justify-between" style="background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;">
                 <div class="card-header">
-                    <div class="card-title">
-                        <svg class="card-title-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="card-title text-white" style="color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
+                        <svg class="card-title-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: #ffffff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
                         </svg>
-                        MUSIC PLAYER
-                    </div>
-                    <button class="btn-icon" @click="showPlaylistPicker = !showPlaylistPicker" title="Choose playlist">
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="card-divider"></div>
-
-                {{-- Playlist Picker --}}
-                <div x-show="showPlaylistPicker" x-transition class="mb-3">
-                    <template x-for="pl in playlists" :key="pl.id">
-                        <div class="playlist-item"
-                             :class="{ 'active': currentPlaylist?.id === pl.id }"
-                             @click="selectPlaylist(pl)">
-                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            <div>
-                                <div class="font-medium text-xs" x-text="pl.name"></div>
-                                <div class="text-xs opacity-60" x-text="pl.artist"></div>
-                            </div>
-                        </div>
-                    </template>
-
-                    {{-- Custom URL --}}
-                    <div class="mt-2 flex gap-1">
-                        <input type="text" class="input-field text-xs flex-1"
-                               placeholder="Paste Spotify URL..."
-                               x-model="customSpotifyUrl"
-                               @keydown.enter="loadCustomPlaylist()">
-                        <button class="btn-ghost text-xs" @click="loadCustomPlaylist()">Load</button>
+                        LOFI CAFE
                     </div>
                 </div>
 
-                {{-- Spotify Embed --}}
-                <div class="flex-1 rounded-xl overflow-hidden" style="min-height: 152px;">
-                    <template x-if="currentPlaylist">
-                        <iframe
-                            :src="'https://open.spotify.com/embed/' + spotifyEmbedType + '/' + currentPlaylist.id + '?utm_source=generator&theme=0'"
+                {{-- Lo-Fi Cafe Embed --}}
+                <div class="w-full flex items-center justify-center rounded-xl overflow-hidden mt-auto" style="background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); padding: 6px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <iframe src="https://loficafe.net/embed/chilling?utm_source=embed&utm_medium=iframe&utm_campaign=station_embed"
                             width="100%"
-                            height="152"
-                            frameBorder="0"
-                            allowfullscreen=""
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"
-                            style="border-radius: 12px;">
-                        </iframe>
-                    </template>
+                            height="80"
+                            frameborder="0"
+                            allow="autoplay"
+                            style="border-radius: 8px; border: none;">
+                    </iframe>
                 </div>
             </div>
         </div>
