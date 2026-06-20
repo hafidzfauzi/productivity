@@ -286,6 +286,23 @@ export default function dashboard() {
         longitude: null,
         weather: { temp: '--', condition: 'Loading...', icon: '🌤️', city: '—', humidity: '--' },
 
+        get timeOfDay() {
+            const h = this.getCurrentHour();
+            if (h >= 5 && h < 11) return 'morning';
+            if (h >= 11 && h < 16) return 'afternoon';
+            if (h >= 16 && h < 19) return 'evening';
+            return 'night';
+        },
+
+        get weatherClass() {
+            const cond = (this.weather.condition || '').toLowerCase();
+            if (cond.includes('clear') || cond.includes('sunny')) return 'weather-clear';
+            if (cond.includes('cloud') || cond.includes('overcast') || cond.includes('fog')) return 'weather-cloudy';
+            if (cond.includes('rain') || cond.includes('drizzle') || cond.includes('shower')) return 'weather-rainy';
+            if (cond.includes('thunder') || cond.includes('storm')) return 'weather-stormy';
+            return '';
+        },
+
         initLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(

@@ -176,9 +176,9 @@ body {
 
 .card:hover {
     background: var(--bg-card-hover);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
     border-color: var(--border-hover);
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.005);
 }
 
 .card-inner {
@@ -802,4 +802,132 @@ body {
     bottom: -200px;
     left: -100px;
     animation: float 10s ease-in-out infinite reverse;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   AESTHETIC UPGRADES: DYNAMIC BACKGROUNDS, WEATHER CARD & ANIMATIONS
+   ══════════════════════════════════════════════════════════════════ */
+
+/* --- Dynamic Time-of-Day CSS Variables (Light Mode) --- */
+body[data-time="morning"] {
+    --bg-primary: #fffbeb;
+    --bg-mesh-gradient: linear-gradient(135deg, #fffbeb 0%, #fed7aa 50%, #bae6fd 100%);
+    --accent-glow: rgba(253, 186, 116, 0.4);
+}
+body[data-time="afternoon"] {
+    --bg-primary: #f0f9ff;
+    --bg-mesh-gradient: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 50%, #e0f2fe 100%);
+    --accent-glow: rgba(14, 165, 233, 0.2);
+}
+body[data-time="evening"] {
+    --bg-primary: #fdf2f8;
+    --bg-mesh-gradient: linear-gradient(135deg, #fef08a 0%, #f472b6 40%, #c084fc 100%);
+    --accent-glow: rgba(244, 114, 182, 0.35);
+}
+body[data-time="night"] {
+    --bg-primary: #f1f5f9;
+    --bg-mesh-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 60%, #94a3b8 100%);
+    --accent-glow: rgba(148, 163, 184, 0.2);
+}
+
+/* --- Dynamic Time-of-Day CSS Variables (Dark Mode) --- */
+.dark body[data-time="morning"] {
+    --bg-primary: #121013;
+    --bg-mesh-gradient: linear-gradient(135deg, #121013 0%, #2e1d15 50%, #151e29 100%);
+    --accent-glow: rgba(251, 146, 60, 0.15);
+}
+.dark body[data-time="afternoon"] {
+    --bg-primary: #0a0f1d;
+    --bg-mesh-gradient: linear-gradient(135deg, #0a0f1d 0%, #111a2e 50%, #091322 100%);
+    --accent-glow: rgba(56, 189, 248, 0.15);
+}
+.dark body[data-time="evening"] {
+    --bg-primary: #170d1e;
+    --bg-mesh-gradient: linear-gradient(135deg, #170d1e 0%, #31132f 50%, #190c30 100%);
+    --accent-glow: rgba(192, 132, 252, 0.15);
+}
+.dark body[data-time="night"] {
+    --bg-primary: #05060b;
+    --bg-mesh-gradient: linear-gradient(135deg, #05060b 0%, #0a0e1a 50%, #030407 100%);
+    --accent-glow: rgba(99, 102, 241, 0.15);
+}
+
+/* --- Transition & Mesh Apply --- */
+.bg-mesh {
+    background: var(--bg-mesh-gradient, var(--bg-primary));
+    transition: background 1.5s ease-in-out;
+}
+
+/* --- Weather Card Real-Time Gradients --- */
+#widget-weather-quotes {
+    transition: background 1s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+#widget-weather-quotes.weather-clear {
+    background: linear-gradient(135deg, #ff9900 0%, #ff5e62 100%) !important;
+}
+#widget-weather-quotes.weather-cloudy {
+    background: linear-gradient(135deg, #757f9a 0%, #4a569d 100%) !important;
+}
+#widget-weather-quotes.weather-rainy {
+    background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%) !important;
+}
+#widget-weather-quotes.weather-stormy {
+    background: linear-gradient(135deg, #141e30 0%, #243b55 100%) !important;
+}
+
+/* Ensure readability inside dynamic weather cards */
+#widget-weather-quotes[class*="weather-"] .weather-temp,
+#widget-weather-quotes[class*="weather-"] .weather-condition,
+#widget-weather-quotes[class*="weather-"] .quote-text {
+    color: #ffffff !important;
+}
+#widget-weather-quotes[class*="weather-"] [style*="color: var(--text-tertiary)"],
+#widget-weather-quotes[class*="weather-"] [style*="color: var(--text-secondary)"],
+#widget-weather-quotes[class*="weather-"] .quote-author {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+#widget-weather-quotes[class*="weather-"] .card-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+#widget-weather-quotes[class*="weather-"] .card-title-icon {
+    color: #ffffff !important;
+}
+#widget-weather-quotes[class*="weather-"] .card-divider {
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.15) 0px,
+        rgba(255, 255, 255, 0.15) 4px,
+        transparent 4px,
+        transparent 8px
+    ) !important;
+}
+#widget-weather-quotes[class*="weather-"] .btn-icon {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+#widget-weather-quotes[class*="weather-"] .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+/* --- Focus Timer Running Glow Ring --- */
+@keyframes ring-glow {
+    0%, 100% { filter: drop-shadow(0 0 2px var(--timer-ring)); }
+    50% { filter: drop-shadow(0 0 10px var(--timer-ring)); }
+}
+.timer-running-glow {
+    animation: ring-glow 2s infinite ease-in-out;
+}
+
+/* --- Profile Avatar Rotating Ring --- */
+.avatar-glow-container {
+    overflow: hidden;
+}
+.avatar-glow-ring {
+    background: conic-gradient(from 0deg, var(--accent-primary), var(--accent-secondary), var(--success), var(--accent-primary));
+    animation: spin-gradient 4s linear infinite;
+}
+@keyframes spin-gradient {
+    100% {
+        transform: rotate(360deg);
+    }
 }
