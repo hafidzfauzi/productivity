@@ -858,24 +858,141 @@ body[data-time="night"] {
     transition: background 1.5s ease-in-out;
 }
 
-/* --- Weather Card Real-Time Gradients --- */
+/* --- Weather Card Real-Time Gradients & Animations --- */
 #widget-weather-quotes {
     transition: background 1s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
 }
 #widget-weather-quotes.weather-clear {
-    background: linear-gradient(135deg, #ff9900 0%, #ff5e62 100%) !important;
+    background: linear-gradient(to bottom, #52a0fd 0%, #8ac1ff 60%, #badaff 100%) !important;
+}
+.dark #widget-weather-quotes.weather-clear {
+    background: linear-gradient(to bottom, #111a2e 0%, #0a0e17 100%) !important;
 }
 #widget-weather-quotes.weather-cloudy {
-    background: linear-gradient(135deg, #757f9a 0%, #4a569d 100%) !important;
+    background: linear-gradient(to bottom, #8fa0b5 0%, #bdcbd9 100%) !important;
+}
+.dark #widget-weather-quotes.weather-cloudy {
+    background: linear-gradient(to bottom, #1e2430 0%, #0f1218 100%) !important;
 }
 #widget-weather-quotes.weather-rainy {
-    background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%) !important;
+    background: linear-gradient(to bottom, #4c5d73 0%, #303d4c 100%) !important;
+}
+.dark #widget-weather-quotes.weather-rainy {
+    background: linear-gradient(to bottom, #11161d 0%, #07090c 100%) !important;
 }
 #widget-weather-quotes.weather-stormy {
-    background: linear-gradient(135deg, #141e30 0%, #243b55 100%) !important;
+    background: linear-gradient(to bottom, #2b3240 0%, #171c24 100%) !important;
+}
+.dark #widget-weather-quotes.weather-stormy {
+    background: linear-gradient(to bottom, #0c0e14 0%, #040507 100%) !important;
+}
+
+/* Atmospheric Elements styling */
+.weather-sky-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.weather-sun-glow {
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 235, 120, 0.4) 0%, rgba(255, 180, 50, 0.15) 50%, transparent 75%);
+    animation: sun-pulse 8s infinite alternate ease-in-out;
+    filter: blur(10px);
+}
+@keyframes sun-pulse {
+    0% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+    100% { transform: scale(1.15) rotate(45deg); opacity: 1; }
+}
+
+.weather-cloud-container {
+    position: absolute;
+    inset: 0;
+}
+.cloud {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    filter: blur(10px);
+}
+.dark .cloud {
+    background: rgba(255, 255, 255, 0.07);
+}
+.cloud-1 {
+    width: 130px;
+    height: 60px;
+    top: 15%;
+    left: -120px;
+    animation: drift 25s linear infinite;
+}
+.cloud-2 {
+    width: 170px;
+    height: 80px;
+    top: 40%;
+    left: -180px;
+    animation: drift 35s linear infinite;
+    animation-delay: 4s;
+}
+.cloud-3 {
+    width: 100px;
+    height: 45px;
+    top: 65%;
+    left: -100px;
+    animation: drift 20s linear infinite;
+    animation-delay: 8s;
+}
+@keyframes drift {
+    from { transform: translateX(-50px); }
+    to { transform: translateX(450px); }
+}
+
+.weather-rain-container, .weather-storm-container {
+    position: absolute;
+    inset: 0;
+}
+.rain-drop {
+    position: absolute;
+    top: -30px;
+    width: 1px;
+    height: 22px;
+    background: linear-gradient(transparent, rgba(255, 255, 255, 0.35));
+    animation: rain-fall linear infinite;
+}
+.dark .rain-drop {
+    background: linear-gradient(transparent, rgba(255, 255, 255, 0.2));
+}
+@keyframes rain-fall {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    8% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(220px) translateX(-25px); opacity: 0; }
+}
+
+.lightning-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 75% 30%, rgba(220, 235, 255, 0.95) 0%, rgba(140, 110, 250, 0.3) 50%, transparent 100%);
+    opacity: 0;
+    animation: storm-lightning 6s infinite ease-in-out;
+    mix-blend-mode: color-dodge;
+}
+@keyframes storm-lightning {
+    0%, 92%, 94%, 96%, 100% { opacity: 0; }
+    93% { opacity: 0.95; }
+    93.5% { opacity: 0.3; }
+    95% { opacity: 0.9; }
 }
 
 /* Ensure readability inside dynamic weather cards */
+#widget-weather-quotes[class*="weather-"] {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
 #widget-weather-quotes[class*="weather-"] .weather-temp,
 #widget-weather-quotes[class*="weather-"] .weather-condition,
 #widget-weather-quotes[class*="weather-"] .quote-text {
@@ -884,10 +1001,10 @@ body[data-time="night"] {
 #widget-weather-quotes[class*="weather-"] [style*="color: var(--text-tertiary)"],
 #widget-weather-quotes[class*="weather-"] [style*="color: var(--text-secondary)"],
 #widget-weather-quotes[class*="weather-"] .quote-author {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
 }
 #widget-weather-quotes[class*="weather-"] .card-title {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(255, 255, 255, 0.88) !important;
 }
 #widget-weather-quotes[class*="weather-"] .card-title-icon {
     color: #ffffff !important;

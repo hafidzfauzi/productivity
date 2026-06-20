@@ -83,8 +83,49 @@
         </div>
 
         {{-- ── ROW 1, COL 2: Weather & Quotes ── --}}
-        <div class="card animate-fade-in-up" id="widget-weather-quotes">
-            <div class="card-inner">
+        <div class="card animate-fade-in-up overflow-hidden" id="widget-weather-quotes" :class="weatherClass" style="position: relative;">
+            {{-- iPhone-style Animated Weather Background Overlay --}}
+            <div class="weather-sky-bg absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <!-- Clear/Sunny -->
+                <template x-if="weatherClass === 'weather-clear'">
+                    <div class="weather-sun-glow"></div>
+                </template>
+                
+                <!-- Cloudy/Overcast -->
+                <template x-if="weatherClass === 'weather-cloudy'">
+                    <div class="weather-cloud-container">
+                        <div class="cloud cloud-1"></div>
+                        <div class="cloud cloud-2"></div>
+                        <div class="cloud cloud-3"></div>
+                    </div>
+                </template>
+                
+                <!-- Rainy/Drizzle -->
+                <template x-if="weatherClass === 'weather-rainy'">
+                    <div class="weather-rain-container">
+                        <div class="rain-drop" style="left: 10%; animation-delay: 0.1s; animation-duration: 0.8s;"></div>
+                        <div class="rain-drop" style="left: 25%; animation-delay: 0.5s; animation-duration: 1.1s;"></div>
+                        <div class="rain-drop" style="left: 40%; animation-delay: 0.2s; animation-duration: 0.9s;"></div>
+                        <div class="rain-drop" style="left: 55%; animation-delay: 0.7s; animation-duration: 1.2s;"></div>
+                        <div class="rain-drop" style="left: 70%; animation-delay: 0.3s; animation-duration: 0.75s;"></div>
+                        <div class="rain-drop" style="left: 85%; animation-delay: 0.6s; animation-duration: 1s;"></div>
+                    </div>
+                </template>
+                
+                <!-- Stormy/Thunderstorm -->
+                <template x-if="weatherClass === 'weather-stormy'">
+                    <div class="weather-storm-container">
+                        <div class="lightning-flash"></div>
+                        <div class="rain-drop" style="left: 15%; animation-delay: 0.1s; animation-duration: 0.8s;"></div>
+                        <div class="rain-drop" style="left: 35%; animation-delay: 0.4s; animation-duration: 1s;"></div>
+                        <div class="rain-drop" style="left: 55%; animation-delay: 0.2s; animation-duration: 0.9s;"></div>
+                        <div class="rain-drop" style="left: 75%; animation-delay: 0.6s; animation-duration: 1.1s;"></div>
+                        <div class="rain-drop" style="left: 90%; animation-delay: 0.3s; animation-duration: 0.75s;"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="card-inner" style="position: relative; z-index: 10; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;">
                 <div class="card-header">
                     <div class="card-title">
                         <svg class="card-title-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -121,6 +162,8 @@
                     <p class="quote-text" x-text="'“' + quote.text + '”'">Loading...</p>
                     <p class="quote-author" x-text="'— ' + quote.author">—</p>
                 </div>
+
+
             </div>
         </div>
 
